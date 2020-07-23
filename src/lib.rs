@@ -57,25 +57,25 @@ mod serde {
         }
     }
 
+    impl<T: Serialize> Serialize for super::Secret<T> {
+        fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where
+            S: Serializer,
+        {
+            self.0.serialize(serializer)
+        }
+    }
+
     pub fn insecure_serialize<T: Serialize, S>(x: &Secret<T>, s: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
         x.0.serialize(s)
     }
-
-    pub fn serialize<T, S>(_: &Secret<T>, s: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        "<hidden>".serialize(s)
-    }
 }
 
 #[cfg(feature = "serde")]
 pub use self::serde::insecure_serialize;
-#[cfg(feature = "serde")]
-pub use self::serde::serialize;
 
 #[cfg(test)]
 mod tests {
@@ -88,7 +88,6 @@ mod tests {
         struct X {
             #[serde(serialize_with = "insecure_serialize")]
             y: Secret<u32>,
-            #[serde(serialize_with = "serialize")]
             z: Secret<u32>,
         }
     }
