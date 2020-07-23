@@ -10,4 +10,7 @@ Simply wrap up your type in `Secret` and that's it. You may access inner type vi
 
 ## Serde support
 
-This library supports serde traits derive but it's not enabled by default. Use `features = ["serde"]` to enable.
+This library supports derive of serde traits but it's disabled by default.
+Use `features = ["serde"]` to enable it. By default `Serialize` does not
+leak the inner value, a reversible serialization might be settled with
+`#[serde(serialize_with = "insecure_serialize")]` field attribute.
