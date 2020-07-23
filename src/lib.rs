@@ -46,16 +46,9 @@ impl<T> fmt::Display for Secret<T> {
 mod serde {
     use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-    impl<T: Serialize> Serialize for super::Secret<T> {
-        fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where
-            S: Serializer,
-        {
-            self.0.serialize(serializer)
-        }
-    }
+    use super::Secret;
 
-    impl<'de, T: Deserialize<'de>> Deserialize<'de> for super::Secret<T> {
+    impl<'de, T: Deserialize<'de>> Deserialize<'de> for Secret<T> {
         fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
         where
             D: Deserializer<'de>,
@@ -63,12 +56,40 @@ mod serde {
             T::deserialize(deserializer).map(Self)
         }
     }
+
+    pub fn insecure_serialize<T: Serialize, S>(x: &Secret<T>, s: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        x.0.serialize(s)
+    }
+
+    pub fn serialize<T, S>(_: &Secret<T>, s: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        "<hidden>".serialize(s)
+    }
 }
+
+#[cfg(feature = "serde")]
+pub use self::serde::insecure_serialize;
+#[cfg(feature = "serde")]
+pub use self::serde::serialize;
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+
+    #[cfg(feature = "serde")]
     #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
+    fn test_insecure_serialize() {
+        #[derive(::serde::Serialize, ::serde::Deserialize)]
+        struct X {
+            #[serde(serialize_with = "insecure_serialize")]
+            y: Secret<u32>,
+            #[serde(serialize_with = "serialize")]
+            z: Secret<u32>,
+        }
     }
 }
