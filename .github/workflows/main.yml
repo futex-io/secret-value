@@ -37,16 +37,16 @@ jobs:
       run: cargo fmt -- --check
 
     - name: Lint
-      run: 
-        - cargo clippy -- -D warnings
-        - cargo clippy --all-features -- -D warnings
+      run: | 
+        cargo clippy -- -D warnings
+        cargo clippy --all-features -- -D warnings
 
     - name: Build
-      run:
-        - cargo build
-        - cargo build --all-features
+      run: |
+        cargo build
+        cargo build --all-features
 
     - name: Test
-      run: 
-        - cargo test
-        - cargo test --all-features
+      run: |
+        cargo test
+        cargo test --all-features
