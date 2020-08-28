@@ -90,35 +90,44 @@ mod tests {
             #[serde(serialize_with = "insecure_serialize")]
             y: Secret<u32>,
         }
-        let x = X{ y: Secret(1) };
-        assert_tokens(&x, &[
-            Token::Struct { name: "X", len: 1},
-            Token::Str("y"),
-            Token::U32(1),
-            Token::StructEnd
-        ]);
+        let x = X { y: Secret(1) };
+        assert_tokens(
+            &x,
+            &[
+                Token::Struct { name: "X", len: 1 },
+                Token::Str("y"),
+                Token::U32(1),
+                Token::StructEnd,
+            ],
+        );
     }
 
     #[cfg(feature = "serde")]
     #[test]
     fn test_secure_serialize() {
-        use serde_test::{assert_ser_tokens, assert_de_tokens, Token};
+        use serde_test::{assert_de_tokens, assert_ser_tokens, Token};
         #[derive(::serde::Serialize, ::serde::Deserialize, PartialEq, Debug)]
         struct X {
             z: Secret<u32>,
         }
         let x = X { z: Secret(1) };
-        assert_ser_tokens(&x, &[
-            Token::Struct { name: "X", len: 1},
-            Token::Str("z"),
-            Token::Str("<hidden>"),
-            Token::StructEnd
-        ]);
-        assert_de_tokens(&x, &[
-            Token::Struct { name: "X", len: 1},
-            Token::Str("z"),
-            Token::U32(1),
-            Token::StructEnd
-        ]);
+        assert_ser_tokens(
+            &x,
+            &[
+                Token::Struct { name: "X", len: 1 },
+                Token::Str("z"),
+                Token::Str("<hidden>"),
+                Token::StructEnd,
+            ],
+        );
+        assert_de_tokens(
+            &x,
+            &[
+                Token::Struct { name: "X", len: 1 },
+                Token::Str("z"),
+                Token::U32(1),
+                Token::StructEnd,
+            ],
+        );
     }
 }
